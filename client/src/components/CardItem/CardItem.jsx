@@ -19,59 +19,116 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
+import { BLOGURL } from "../../constants";
+import axios from "axios";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
+import "./carditem.css";
+import moment from "moment";
 
-const CardItem = ({ title, description, blogId, user, userId }) => {
+const CardItem = ({ title, description, blogId, user, userId, createdAt }) => {
   const navigate = useNavigate();
+  const [open, setOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleAgree = async () => {
+    try {
+      const res = await axios.delete(`${BLOGURL}/deleteblog/${blogId}`);
+      if (res) {
+        setOpen(false);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    // await axios.delete(`${BLOGURL}/deleteblog/${id}`);
+  };
   return (
-    <Card
-      sx={{
-        maxWidth: 345,
-        boxShadow: " rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-      }}
-    >
-      <CardHeader
-        avatar={
-          <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            {user}
-          </Avatar>
-        }
-        title={title}
-        subheader="September 14, 2016"
-      />
-      <CardMedia
-        component="img"
-        height="194"
-        sx={{ objectFit: "contain" }}
-        image={
-          "https://i.gadgets360cdn.com/products/large/vivo-t2-5g-db-709x800-1681200173.jpg?downsize=*:420&output-quality=80"
-        }
-        alt="Paella dish"
-      />
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      </CardContent>
-      <CardActions disableSpacing>
-        <IconButton
-          aria-label="add to favorites"
-          onClick={() => console.log("clicked")}
-        >
-          <FavoriteIcon />
-        </IconButton>
-        {userId === localStorage.getItem("userId") && (
-          <IconButton aria-label="add to favorites">
-            <DeleteIcon />
+    <>
+      <Card
+        sx={{
+          maxWidth: 345,
+          boxShadow: " rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+        }}
+      >
+        <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+              {user[0].toUpperCase()}
+            </Avatar>
+          }
+          title={title}
+          subheader={moment(createdAt).fromNow()}
+        />
+        <CardMedia
+          component="img"
+          height="194"
+          sx={{ objectFit: "contain" }}
+          image={
+            "https://i.gadgets360cdn.com/products/large/vivo-t2-5g-db-709x800-1681200173.jpg?downsize=*:420&output-quality=80"
+          }
+          alt="Paella dish"
+        />
+        <CardContent>
+          <span className="tag tag-teal">Technology</span>
+          <Typography variant="body2" color="text.secondary">
+            {description}
+          </Typography>
+        </CardContent>
+        <CardActions disableSpacing>
+          <IconButton
+            aria-label="add to favorites"
+            onClick={() => console.log("clicked")}
+          >
+            <FavoriteIcon />
           </IconButton>
-        )}
-        <IconButton
-          aria-label="share"
-          onClick={() => navigate(`/addblog/${blogId}`)}
-        >
-          <EditIcon />
-        </IconButton>
-      </CardActions>
-    </Card>
+          {userId === localStorage.getItem("userId") && (
+            <IconButton
+              aria-label="add to favorites"
+              onClick={() => setOpen(true)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+          {userId === localStorage.getItem("userId") && (
+            <IconButton
+              aria-label="share"
+              onClick={() => navigate(`/addblog/${blogId}`)}
+            >
+              <EditIcon />
+            </IconButton>
+          )}
+        </CardActions>
+      </Card>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure want to delete this blog?"}
+        </DialogTitle>
+
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleAgree} autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

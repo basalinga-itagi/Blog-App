@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/AuthSlice";
 import useFetch from "../../hooks/useFetch";
 import { USERURL } from "../../constants";
+import { CardMedia } from "@mui/material";
 
 const settings = ["Profile", "Logout"];
 
@@ -26,7 +27,8 @@ function Header() {
   let favBlogs = 3;
   let login = false;
   const dispatch = useDispatch();
-  const isLogin = useSelector((state) => state.auth.isLoggedIn);
+  // const isLogin = useSelector((state) => state.auth.isLoggedIn);
+  const isLogin = localStorage.getItem("userId");
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const { data, loading, error } = useFetch(`${USERURL}/finduser/${userId}`);
@@ -41,13 +43,15 @@ function Header() {
       url: "/addblog",
     },
     {
-      name: `My Blogs(${data?.blogs?.length})`,
+      name: `My Blogs ${
+        data?.blogs?.length > 0 ? `(${data?.blogs?.length})` : ""
+      }`,
       url: "/myblogs",
     },
-    {
-      name: `Faviourate Blogs(${favBlogs})`,
-      url: "/favblogs",
-    },
+    // {
+    //   name: `Faviourate Blogs(${favBlogs})`,
+    //   url: "/favblogs",
+    // },
   ];
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -66,7 +70,12 @@ function Header() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
-    dispatch(logout());
+  };
+
+  const handleLogOut = () => {
+    setAnchorElUser(null);
+    // dispatch(logout());
+    localStorage.removeItem("userId");
     navigate("/login");
   };
 
@@ -96,6 +105,18 @@ function Header() {
           >
             BLOG APP
           </Typography>
+          {/* <CardMedia
+            alt="title"
+            component="img"
+            title="title"
+            image={``}
+          /> */}
+          {/* <img
+            src={`https://www.istockphoto.com/photo/a-large-gray-craftsman-new-construction-house-with-a-landscaped-yard-and-leading-gm1448386210-485915364?utm_source=unsplash&utm_medium=affiliate&utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fimage&utm_term=image%3A%3A%3A`}
+            width={100}
+            height={100}
+            alt={"My Tech"}
+          /> */}
 
           {/* <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -162,10 +183,21 @@ function Header() {
 
           {isLogin && (
             <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
-              <Typography>Welcome {data?.name}</Typography>
+              <Typography sx={{ marginRight: 4 }}>
+                Welcome{" "}
+                {`${data?.name[0]?.toUpperCase()}${data?.name?.substr(
+                  1,
+                  data?.name?.length
+                )}`}
+              </Typography>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar
+                    sx={{ bgcolor: "white", color: "black" }}
+                    aria-label="recipe"
+                  >
+                    {data?.name[0].toUpperCase()}
+                  </Avatar>
                 </IconButton>
               </Tooltip>
               <Menu
@@ -182,13 +214,13 @@ function Header() {
                   horizontal: "right",
                 }}
                 open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
+                onClick={handleCloseUserMenu}
               >
                 {settings.map((setting) => (
                   <MenuItem key={setting}>
                     <Typography
                       textAlign="center"
-                      onClick={handleCloseUserMenu}
+                      onClick={setting === "Logout" && handleLogOut}
                     >
                       {setting}
                     </Typography>

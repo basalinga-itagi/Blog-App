@@ -17,6 +17,8 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { BLOGURL, USERURL } from "../../constants";
 import axios from "axios";
 import useFetch from "../../hooks/useFetch";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 function Copyright(props) {
   return (
     <Typography
@@ -40,32 +42,60 @@ const defaultTheme = createTheme();
 
 export default function AddBlog() {
   const location = useLocation();
-  console.log("location", location?.pathname.split("/")[2]);
   const editUserId = location?.pathname.split("/")[2];
 
   const { data, loading, error } = useFetch(`${BLOGURL}/getblog/${editUserId}`);
-  console.log("fetch user blog", data);
   const { title, description, image } = data ? data : {};
+  console.log("fetch user user user blog", title, description, image);
+
   const [blogInfo, setBlogInfo] = React.useState({
-    title: data ? title : "",
-    description: data ? description : "",
-    image: data ? image : "",
+    title: "",
+    description: "",
+    image: "",
   });
+
+  React.useEffect(() => {
+    setBlogInfo((prevInfo) => {
+      return {
+        ...prevInfo,
+        title: title,
+        description: description,
+        image: image,
+      };
+    });
+  }, [data]);
+  console.log("Updated blog info", blogInfo);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Submit event", blogInfo);
     try {
-      const res = await axios.post(`${BLOGURL}/addblog`, {
-        title: blogInfo.title,
-        description: blogInfo.description,
-        image: blogInfo.image,
-        user: userId,
-      });
+      let res;
+      if (!editUserId) {
+        res = await axios.post(`${BLOGURL}/addblog`, {
+          title: blogInfo.title,
+          description: blogInfo.description,
+          image: blogInfo.image,
+          user: userId,
+        });
+      } else {
+        res = await axios.put(`${BLOGURL}/updateblog/${editUserId}`, {
+          title: blogInfo.title,
+          description: blogInfo.description,
+          image: blogInfo.image,
+        });
+      }
+
       if (res) {
         navigate("/allblogs");
+
+        // return (
+        //   <Alert severity="success">
+        //     <AlertTitle>Success</AlertTitle>
+        //     This is a success alert — <strong>check it out!</strong>
+        //   </Alert>
+        // );
       }
     } catch (e) {
       console.log(e);
@@ -147,7 +177,7 @@ export default function AddBlog() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Add Blog
+            {editUserId ? `Update` : `Add`} Blog
           </Button>
         </Box>
       </Box>

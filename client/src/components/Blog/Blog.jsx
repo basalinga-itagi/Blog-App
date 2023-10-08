@@ -18,6 +18,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CardItem from "../CardItem/CardItem";
 import useFetch from "../../hooks/useFetch";
 import { BLOGURL } from "../../constants";
+import NewReleasesIcon from "@mui/icons-material/NewReleases";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -40,28 +41,47 @@ export default function Blog() {
   const { data, loading, error } = useFetch(`${BLOGURL}/allblogs`);
   console.log("allblogs", data);
   return (
-    <Box
-      sx={{
-        marginTop: 13,
-        display: "flex",
-        gap: 3,
-        flexWrap: "wrap",
-        // justifyContent: "space-between",
-      }}
-    >
-      {data &&
-        data.length > 0 &&
-        data.map(({ title, description, _id, user }) => {
-          return (
-            <CardItem
-              title={title}
-              description={description}
-              blogId={_id}
-              user={user.name}
-              userId={user._id}
-            />
-          );
-        })}
-    </Box>
+    <>
+      {data && data.length == 0 && (
+        <>
+          <Typography
+            variant="h1"
+            component="h2"
+            sx={{
+              height: "60vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <NewReleasesIcon color="red" />
+            No Blogs Found
+          </Typography>
+        </>
+      )}
+      <Box
+        sx={{
+          marginTop: 13,
+          display: "flex",
+          gap: 3,
+          flexWrap: "wrap",
+          // justifyContent: "space-between",
+        }}
+      >
+        {data &&
+          data.length > 0 &&
+          data.map(({ title, description, _id, user }) => {
+            return (
+              <CardItem
+                title={title}
+                description={description}
+                blogId={_id}
+                user={user.name}
+                userId={user._id}
+              />
+            );
+          })}
+      </Box>
+    </>
   );
 }
