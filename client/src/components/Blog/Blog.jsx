@@ -1,45 +1,37 @@
 import * as React from "react";
-import { styled } from "@mui/material/styles";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import Collapse from "@mui/material/Collapse";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import { Box } from "@mui/material";
+import { Box, CardMedia } from "@mui/material";
 import { red } from "@mui/material/colors";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CardItem from "../CardItem/CardItem";
 import useFetch from "../../hooks/useFetch";
 import { BLOGURL } from "../../constants";
 import NewReleasesIcon from "@mui/icons-material/NewReleases";
+import axios from "axios";
+import logo from "../../assets/images.jpeg";
 
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+export default function Blog({ category }) {
+  const [allBlogs, setAllBlogs] = React.useState([]);
 
-export default function Blog() {
-  const [expanded, setExpanded] = React.useState(false);
+  const { data, loading, error } = useFetch(
+    `${BLOGURL}/allblogs${category == "" ? "/" : "?" + category}`
+  );
+  // console.log("allblogs", data);
+  React.useEffect(() => {
+    setAllBlogs(data);
+  }, [data]);
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const handleDelete = async (blogId) => {
+    try {
+      const res = await axios.delete(`${BLOGURL}/deleteblog/${blogId}`);
+      if (res) {
+        const filterArr = data.filter(({ _id }) => _id !== blogId);
+        setAllBlogs(filterArr);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const { data, loading, error } = useFetch(`${BLOGURL}/allblogs`);
-  console.log("allblogs", data);
   return (
     <>
       {data && data.length == 0 && (
@@ -65,22 +57,35 @@ export default function Blog() {
           display: "flex",
           gap: 3,
           flexWrap: "wrap",
-          // justifyContent: "space-between",
         }}
       >
-        {data &&
-          data.length > 0 &&
-          data.map(({ title, description, _id, user }) => {
-            return (
-              <CardItem
-                title={title}
-                description={description}
-                blogId={_id}
-                user={user.name}
-                userId={user._id}
-              />
-            );
-          })}
+        {allBlogs &&
+          allBlogs.length > 0 &&
+          allBlogs.map(
+            ({ title, description, image, _id, createdAt, user, tagtype }) => {
+              return (
+                <CardItem
+                  title={title}
+                  description={description}
+                  blogId={_id}
+                  user={user.name}
+                  image={image}
+                  tagtype={tagtype}
+                  createdAt={createdAt}
+                  userId={user._id}
+                  handleDelete={handleDelete}
+                />
+              );
+            }
+          )}
+        {/* <Typography>image</Typography>
+        <CardMedia
+          component="img"
+          height="194"
+          sx={{ objectFit: "contain" }}
+          image={logo}
+          alt="Paella dish"
+        /> */}
       </Box>
     </>
   );

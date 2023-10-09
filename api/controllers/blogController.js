@@ -3,8 +3,15 @@ import Blog from "../models/Blog.js";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 export const getAllBlogs = async (req, res, next) => {
+  console.log("req.query.category", req.query.category);
   try {
-    const blogs = await Blog.find({}).populate("user");
+    let blogs;
+    if (!req.query.category) {
+      blogs = await Blog.find({}).populate("user");
+    } else {
+      blogs = await Blog.find({ tagtype: req.query.category }).populate("user");
+    }
+
     res.status(200).json(blogs);
   } catch (err) {
     res.status(500).send("Error while fetching all blogs");
@@ -12,7 +19,7 @@ export const getAllBlogs = async (req, res, next) => {
 };
 
 export const addBlog = async (req, res, next) => {
-  const { title, description, image, user } = req.body;
+  const { title, description, image, tagtype, user } = req.body;
   try {
     const existingUser = await User.findById(user);
     if (!existingUser) {
@@ -22,6 +29,7 @@ export const addBlog = async (req, res, next) => {
       title,
       description,
       image,
+      tagtype,
       user,
     });
     const session = await mongoose.startSession();

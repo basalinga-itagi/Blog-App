@@ -19,6 +19,15 @@ import axios from "axios";
 import useFetch from "../../hooks/useFetch";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import FileBase64 from "react-file-base64";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+
 function Copyright(props) {
   return (
     <Typography
@@ -41,9 +50,11 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function AddBlog() {
+  // const [category, setCategory] = React.useState("");
+
   const location = useLocation();
   const editUserId = location?.pathname.split("/")[2];
-
+  const [type, setType] = React.useState("yes");
   const { data, loading, error } = useFetch(`${BLOGURL}/getblog/${editUserId}`);
   const { title, description, image } = data ? data : {};
   console.log("fetch user user user blog", title, description, image);
@@ -52,24 +63,29 @@ export default function AddBlog() {
     title: "",
     description: "",
     image: "",
+    category: "",
   });
-
+  // const handleSelectChange = (event) => {
+  //   setCategory(event.target.value);
+  // };
   React.useEffect(() => {
     setBlogInfo((prevInfo) => {
       return {
         ...prevInfo,
         title: title,
         description: description,
+        category: blogInfo.category,
         image: image,
       };
     });
   }, [data]);
-  console.log("Updated blog info", blogInfo);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log("blogInfo", blogInfo);
+    // return;
     try {
       let res;
       if (!editUserId) {
@@ -77,6 +93,7 @@ export default function AddBlog() {
           title: blogInfo.title,
           description: blogInfo.description,
           image: blogInfo.image,
+          tagtype: blogInfo.category,
           user: userId,
         });
       } else {
@@ -115,7 +132,7 @@ export default function AddBlog() {
       <CssBaseline />
       <Box
         sx={{
-          marginTop: 8,
+          // marginTop: 8,
           padding: 10,
           display: "flex",
           flexDirection: "column",
@@ -157,19 +174,67 @@ export default function AddBlog() {
             autoComplete="description"
             autoFocus
           />
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="image"
-            value={blogInfo.image}
-            onChange={handleChange}
-            label="Enter Image"
-            name="image"
-            autoComplete="image"
-            autoFocus
-          />
+          <FormControl fullWidth sx={{ mt: 3, mb: 4 }}>
+            <InputLabel id="demo-simple-select-label">
+              Select tag type
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={blogInfo.category}
+              label="category"
+              name="category"
+              onChange={handleChange}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value={"technology"}>Technology</MenuItem>
+              <MenuItem value={"agriculture"}>Agriculture</MenuItem>
+              <MenuItem value={"sports"}>Sports</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">
+              Whether you upload image from file ?
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue={type}
+              row
+              name="radio-buttons-group"
+              onChange={(e) => setType(e.target.value)}
+            >
+              <FormControlLabel value="yes" control={<Radio />} label="yes" />
+              <FormControlLabel value="no" control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
+          {type === "yes" && (
+            <FileBase64
+              type={"file"}
+              multiple={false}
+              onDone={({ base64 }) =>
+                setBlogInfo((prev) => ({
+                  ...prev,
+                  image: base64,
+                }))
+              }
+            />
+          )}
+          {type === "no" && (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="image"
+              value={blogInfo.image}
+              onChange={handleChange}
+              label="Enter Image Url"
+              name="image"
+              autoComplete="image"
+              autoFocus
+            />
+          )}
 
           <Button
             type="submit"

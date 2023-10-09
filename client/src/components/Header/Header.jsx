@@ -48,10 +48,10 @@ function Header() {
       }`,
       url: "/myblogs",
     },
-    // {
-    //   name: `Faviourate Blogs(${favBlogs})`,
-    //   url: "/favblogs",
-    // },
+    {
+      name: `Faviourate Blogs(${favBlogs})`,
+      url: "/favblogs",
+    },
   ];
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);

@@ -30,7 +30,17 @@ import Button from "@mui/material/Button";
 import "./carditem.css";
 import moment from "moment";
 
-const CardItem = ({ title, description, blogId, user, userId, createdAt }) => {
+const CardItem = ({
+  title,
+  description,
+  image,
+  blogId,
+  user,
+  userId,
+  tagtype,
+  createdAt,
+  handleDelete,
+}) => {
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => {
@@ -41,19 +51,10 @@ const CardItem = ({ title, description, blogId, user, userId, createdAt }) => {
     setOpen(false);
   };
   const handleAgree = async () => {
-    try {
-      const res = await axios.delete(`${BLOGURL}/deleteblog/${blogId}`);
-      if (res) {
-        setOpen(false);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    setOpen(false);
+    handleDelete(blogId);
   };
-
-  const handleDelete = async (id) => {
-    // await axios.delete(`${BLOGURL}/deleteblog/${id}`);
-  };
+  console.log("image", image);
   return (
     <>
       <Card
@@ -76,12 +77,14 @@ const CardItem = ({ title, description, blogId, user, userId, createdAt }) => {
           height="194"
           sx={{ objectFit: "contain" }}
           image={
-            "https://i.gadgets360cdn.com/products/large/vivo-t2-5g-db-709x800-1681200173.jpg?downsize=*:420&output-quality=80"
+            image
+              ? image
+              : "https://i.gadgets360cdn.com/products/large/vivo-t2-5g-db-709x800-1681200173.jpg?downsize=*:420&output-quality=80"
           }
           alt="Paella dish"
         />
         <CardContent>
-          <span className="tag tag-teal">Technology</span>
+          <span className="tag tag-teal">{tagtype}</span>
           <Typography variant="body2" color="text.secondary">
             {description}
           </Typography>
@@ -91,7 +94,7 @@ const CardItem = ({ title, description, blogId, user, userId, createdAt }) => {
             aria-label="add to favorites"
             onClick={() => console.log("clicked")}
           >
-            <FavoriteIcon />
+            <FavoriteIcon color="error" />
           </IconButton>
           {userId === localStorage.getItem("userId") && (
             <IconButton
