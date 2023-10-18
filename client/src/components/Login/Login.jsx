@@ -57,10 +57,13 @@ export default function Login() {
   };
   const sendRequest = async () => {
     try {
-      const res = await axios.post(`${USERURL}/login`, {
-        email: userInfo.email,
-        password: userInfo.password,
-      });
+      const res = await axios.post(
+        `blog-app-api-sandy.vercel.app/api/user/login`,
+        {
+          email: userInfo.email,
+          password: userInfo.password,
+        }
+      );
       return res.data;
     } catch (e) {
       console.log("error from login", e);
