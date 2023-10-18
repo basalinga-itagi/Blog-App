@@ -58,7 +58,7 @@ export default function Login() {
   const sendRequest = async () => {
     try {
       const res = await axios.post(
-        `blog-app-api-sandy.vercel.app/api/user/login`,
+        `https://blog-app-api-sandy.vercel.app/api/user/login/`,
         {
           email: userInfo.email,
           password: userInfo.password,
