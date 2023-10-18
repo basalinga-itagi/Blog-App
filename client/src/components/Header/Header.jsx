@@ -28,7 +28,7 @@ function Header() {
   let login = false;
   const dispatch = useDispatch();
   // const isLogin = useSelector((state) => state.auth.isLoggedIn);
-  const isLogin = localStorage.getItem("userId");
+  const isLogin = localStorage.getItem("userId") || false;
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const { data, loading, error } = useFetch(`${USERURL}/finduser/${userId}`);
@@ -48,10 +48,10 @@ function Header() {
       }`,
       url: "/myblogs",
     },
-    {
-      name: `Faviourate Blogs(${favBlogs})`,
-      url: "/favblogs",
-    },
+    // {
+    //   name: `Faviourate Blogs(${favBlogs})`,
+    //   url: "/favblogs",
+    // },
   ];
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
