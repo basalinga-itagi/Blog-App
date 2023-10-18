@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: ["https://blog-app-frontend-delta-blush.vercel.app/"],
+    origin: ["https://blog-app-frontend-delta-blush.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
